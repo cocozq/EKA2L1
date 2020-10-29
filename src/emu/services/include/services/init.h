@@ -20,11 +20,15 @@
 
 #pragma once
 
+#include <common/types.h>
+
 namespace eka2l1 {
     class system;
+    class kernel_system;
 
     namespace service {
         /*! \brief Initialize all services and properties. */
         void init_services(system *sys);
+        void set_language(kernel_system *kern, const language new_lang);
     }
 }

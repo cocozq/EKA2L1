@@ -229,4 +229,17 @@ namespace eka2l1 {
             epoc::initialize_system_properties(sys, cfg);
         }
     }
+
+    void set_language(kernel_system *kern, const language new_lang) {
+        property_ptr lang_locale = kern->get_prop(epoc::SYS_CATEGORY, epoc::LOCALE_LANG_KEY);
+
+        if (lang_locale) {
+            std::optional<epoc::locale_language> loc_lang_s = lang_locale->get_pkg<epoc::locale_language>();
+
+            if (loc_lang_s.has_value()) {
+                loc_lang_s->language = static_cast<epoc::language>(new_lang);
+                lang_locale->set(loc_lang_s.value());
+            }
+        }
+    }
 }
