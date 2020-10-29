@@ -842,33 +842,14 @@ namespace eka2l1 {
         const std::string preview_info = dvcs.empty() ? common::get_localised_string(localised_strings, "pref_system_no_device_present_str")
             : dvcs[conf->device].model + " (" + dvcs[conf->device].firmware_code + ")";
 
-        auto set_language_current = [&](const language lang) {
-            conf->language = static_cast<int>(lang);
-            sys->set_system_language(lang);
-            set_language_to_property(lang);
-
-            conf->serialize();
-        };
-
         if (ImGui::BeginCombo("##Devicescombo", preview_info.c_str())) {
             for (std::size_t i = 0; i < dvcs.size(); i++) {
                 const std::string device_info = dvcs[i].model + " (" + dvcs[i].firmware_code + ")";
                 if (ImGui::Selectable(device_info.c_str())) {
                     if (conf->device != i) {
-                        // Check if the language currently in config exists in the new device
-                        if (std::find(dvcs[i].languages.begin(), dvcs[i].languages.end(), conf->language) == dvcs[i].languages.end()) {
-                            set_language_current(static_cast<language>(dvcs[i].default_language_code));
-                        }
+                        sys->set_device(i);
+                        should_notify_reset_for_big_change = true;
                     }
-
-                    conf->device = static_cast<int>(i);
-                    conf->serialize();
-
-                    mngr->lock.unlock();
-                    mngr->set_current(static_cast<std::uint8_t>(i));
-                    mngr->lock.lock();
-
-                    should_notify_reset_for_big_change = true;
                 }
             }
 
@@ -886,17 +867,13 @@ namespace eka2l1 {
 
             auto &dvc = dvcs[conf->device];
 
-            if (conf->language == -1) {
-                set_language_current(static_cast<language>(dvc.default_language_code));
-            }
-
             const std::string lang_preview = common::get_language_name_by_code(conf->language);
 
             if (ImGui::BeginCombo("##Languagesscombo", lang_preview.c_str())) {
                 for (std::size_t i = 0; i < dvc.languages.size(); i++) {
                     const std::string lang_name = common::get_language_name_by_code(dvc.languages[i]);
                     if (ImGui::Selectable(lang_name.c_str())) {
-                        set_language_current(static_cast<language>(dvc.languages[i]));
+                        sys->set_system_language(static_cast<language>(dvc.languages[i]));
                     }
                 }
 

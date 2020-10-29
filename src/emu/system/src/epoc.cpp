@@ -199,8 +199,10 @@ namespace eka2l1 {
             }
 
             device *dvc = dvcmngr_->get_current();
-
-            if (conf_->language == -1) {
+            const bool non_existen_lang = std::find(dvc->languages.begin(), dvc->languages.end(), conf_->language)
+                == dvc->languages.end();
+            
+            if ((conf_->language == -1) || non_existen_lang) {
                 conf_->language = dvc->default_language_code;
                 conf_->serialize();
             }
@@ -266,6 +268,7 @@ namespace eka2l1 {
 
         void set_system_language(const language new_lang) {
             kern_->set_current_language(new_lang);
+            service::set_language(kern_.get(), new_lang);
         }
 
         void startup();
