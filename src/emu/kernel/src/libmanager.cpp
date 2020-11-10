@@ -760,11 +760,17 @@ namespace eka2l1::hle {
                     lib_path += search_paths[i];
                     lib_path += name;
 
+                    LOG_TRACE("Trying to find exists: {}", common::ucs2_to_utf8(lib_path));
+                    
                     if (io_->exist(lib_path)) {
+                        LOG_TRACE("Exists: {}", common::ucs2_to_utf8(lib_path));
+
                         auto result = load_depend_on_drive(drv, lib_path);
                         if (result != nullptr) {
                             result->set_full_path(lib_path);
                             return result;
+                        } else {
+                            LOG_TRACE("Literally fail loading codeseg");
                         }
                     }
 
@@ -773,11 +779,15 @@ namespace eka2l1::hle {
                 }
             }
 
+            LOG_TRACE("Can't find, literally stupid");
             return nullptr;
         }
 
+        LOG_TRACE("Trying to find exists: {}", common::ucs2_to_utf8(lib_path));
+        
         drive_number drv = char16_to_drive(lib_path[0]);
         if (!io_->exist(lib_path)) {
+            LOG_TRACE("Can't find, literally stupid");
             return nullptr;
         }
 
@@ -789,6 +799,8 @@ namespace eka2l1::hle {
             search_paths.pop_back();
             return cs;
         }
+
+        LOG_TRACE("Literally fail loading codeseg");
 
         search_paths.pop_back();
         return nullptr;
